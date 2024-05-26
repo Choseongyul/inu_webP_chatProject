@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import io from 'socket.io-client';
-import './src/LoginForm';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import JoinForm from './src/JoinForm';
+import LoginForm from './src/LoginForm';
 
 const socket = io.connect();
 
@@ -173,11 +174,16 @@ const socket = io.connect();
 
 const App = () => {
     return (
-        <>
-            <h1>test</h1>
-            <LoginForm />
-        </>
-    )
-}
-const root = createRoot(document.getElementById('app'));
-root.render(<ChatApp />);
+        <Router>
+            <Routes>
+                <Route path="/" element={<JoinForm />} />
+                <Route path="/login" element={<LoginForm />} />
+            </Routes>
+        </Router>
+    );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('app'));
+root.render(<App />);
+
+export default App;

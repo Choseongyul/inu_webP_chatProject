@@ -4,7 +4,8 @@ module.exports = {
   entry: './client/app.jsx',
   output: {
     path: path.resolve(__dirname, 'public/js'),
-    filename: 'app.js'
+    filename: 'app.js',
+    publicPath: '/js/'
   },
   module: {
     rules: [
@@ -14,6 +15,10 @@ module.exports = {
         use: {
           loader: 'babel-loader'
         }
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource'
       }
     ]
   },

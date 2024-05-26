@@ -1,39 +1,46 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import inuChar from './images/INU_character/inuChar1.png'
-
-const InputField = ({ label, type = 'text', className, placeholder }) => {
-    return (
-        <div>
-            <label>{label}</label>
-            <input type={type} className={className} placeholder={placeholder} />
-        </div>
-    );
-};
-
-const Button = ({ text, onClick, type = 'button', className }) => {
-    return (
-        <div>
-            <button type={type} className={className} onClick={onClick}>
-                {text}
-            </button>
-        </div>
-    );
-};
+import React, { useState } from 'react';
+import InputField from './InputField';
+import Button from './Button';
+import InuLogo from './images/logo/INU.png';
+import inuChar from './images/logo/inuChar1.png';
 
 const LoginForm = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const isFormValid = username !== '' && password !== '';
+
     return (
-        <div className='login-form'>
-            <text className='screenTitle'>회원가입</text>
-            <InputField className='text-input' placeholder="아이디"/>
-            <InputField className='text-input' placeholder="비밀번호"/>
-            <Button text="회원가입" className='submit-button' />
-            <Button text="바로 로그인" className='direct-login-button' />
-        </div>
+        <>
+            <img src={inuChar} className='IChar' alt="INU Character" />
+            <img src={InuLogo} className='ILogo' alt="INU Logo"/>
+            <form className="submit-form">
+                <text className="loginText">로그인</text>
+                <div>
+                    <InputField
+                        type="text"
+                        className="text-input"
+                        placeholder="아이디"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                    />
+                    <InputField
+                        type="password"
+                        className="text-input"
+                        placeholder="비밀번호"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
+                <Button 
+                    text="로그인" 
+                    className="submit-button" 
+                    type="submit"
+                    disabled={!isFormValid}
+                />
+            </form>
+        </>
     );
 };
 
 export default LoginForm;
-
-const root = createRoot(document.getElementById('app'));
-root.render(<LoginForm />);
