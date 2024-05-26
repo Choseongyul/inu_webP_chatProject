@@ -1,0 +1,89 @@
+/* body{
+	width: 600px;
+	margin: 0 auto;
+	border: 5px solid #02499B;
+	margin-top: 5%;
+}
+.users{
+	float : right;
+	margin-right: 30%;
+}
+.messages {
+	width: 500px;
+	height: 400px;
+	margin: auto;
+	border : 1px solid black;
+	border-radius: 4%;
+	padding: 1em;
+}
+.message_form,
+.change_name_form{
+	padding: 1em;
+}
+.center{
+	width: 600px;
+	height: 700px;
+}
+.textinput{
+	margin-left: 3%;
+	width: 520px;
+	height: 40px;
+} */
+
+/*로그인 & 회원가입 화면*/
+.login-form {
+	width: 600px;
+	height: 350px;
+	border: 5px solid #02499B;
+	border-radius: 4px;
+    margin-top: 250px;
+	margin-left: 330px;
+}
+.screenTitle{
+	position: relative;
+    font-size: 30px;
+	font-weight: 600;
+	letter-spacing: 2px;
+	top: 30px;
+	left: 250px;
+}
+.text-input {
+	position: relative;
+	width: 50%;
+	border-radius: 4px;
+	font-size: 30px;
+    height: 40px;
+    font-size: 14px;
+    border: 2px solid #ccc;
+	top: 72px;
+	margin-top: 10px;
+	margin-left: 150px;
+}
+.submit-button {
+	width: 50%;
+	border-radius: 4px;
+	margin-top: 100px;
+	margin-left: 150px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	cursor: pointer;
+	border: none;
+    background-color: #fdaf14;
+}
+.direct-login-button {
+    width: 50%;
+	border-radius: 4px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	margin-top: 15px;
+	margin-left: 150px;
+    cursor: pointer;
+    background-color: #fdaf14;
+    border: none;
+    color: black;
+	opacity: 50%;
+}
+.label {
+    display: block;
+}
+/*로그인 & 회원가입 화면*/
