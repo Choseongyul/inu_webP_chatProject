@@ -1,21 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import InputField from './InputField';
 import Button from './Button';
 import InuLogo from './images/logo/INU.png';
 import inuChar from './images/logo/inuChar1.png';
+import { openDB, getUser } from './db';
 
 const LoginForm = () => {
+    const navigate = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
-    const isFormValid = username !== '' && password !== '';
+    useEffect(() => {
+        if (username.trim() !== '' && password.trim() !== '') {
+            setIsButtonDisabled(false);
+        } else {
+            setIsButtonDisabled(true);
+        }
+    }, [username, password]);
+
+    const handleMaindirect = async (e) => {
+        e.preventDefault();
+
+        try {
+            const db = await openDB();
+            const user = await getUser(db, username);
+
+            if (user && user.password === password) {
+                navigate('/main');
+            } else {
+                alert("회원가입을 먼저 진행 해주세요.");
+            }
+        } catch (error) {
+            alert('로그인 실패! 다시 시도 해주세요.');
+        }
+    };
 
     return (
         <>
             <img src={inuChar} className='IChar' alt="INU Character" />
             <img src={InuLogo} className='ILogo' alt="INU Logo"/>
-            <form className="submit-form">
-                <text className="loginText">로그인</text>
+            <form className="submit-form" onSubmit={handleMaindirect}>
+                <div className="loginText">로그인</div>
                 <div>
                     <InputField
                         type="text"
@@ -34,9 +61,9 @@ const LoginForm = () => {
                 </div>
                 <Button 
                     text="로그인" 
-                    className="submit-button" 
+                    className="login-button" 
                     type="submit"
-                    disabled={!isFormValid}
+                    disabled={isButtonDisabled}
                 />
             </form>
         </>
