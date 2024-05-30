@@ -17,6 +17,7 @@ app.set('views', __dirname + '/views');
 app.use(express.static(__dirname + '/public'));
 app.set('port', process.env.PORT || 3000);
 
+
 /* Error Handling */
 // Using a third-party error handling middleware recommended for express
 if (process.env.NODE_ENV === 'development') {
@@ -30,8 +31,16 @@ const io = new Server(server);
 io.on('connection', socketHandler);  // Use the imported function for socket events
 
 /* Start server */
-server.listen(app.get('port'), () => {
+server.listen(app.get(3000), () => {
   console.log(`Express server listening on port ${app.get('port')} in ${app.get('env') || 'default'} mode`);
 });
+
+app.get('/*', function(req, res) {
+  res.sendFile(path.join(__dirname, '/public/index.html'), function(err) {
+    if (err) {
+      res.status(500).send(err)
+    }
+  })
+})
 
 module.exports = app;

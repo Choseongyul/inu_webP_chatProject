@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import InputField from './InputField';
 import Button from './Button';
 import InuLogo from './images/logo/INU.png';
 import inuChar from './images/logo/inuChar1.png';
 import { openDB, getUser } from './db';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
-    const navigate = useNavigate();
+    
+    const movePage = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
@@ -28,11 +30,14 @@ const LoginForm = () => {
             const user = await getUser(db, username);
 
             if (user && user.password === password) {
-                navigate('/main');
-            } else {
+                localStorage.setItem('username', username);
+                movePage('/main');
+            } 
+            else {
                 alert("회원가입을 먼저 진행 해주세요.");
             }
-        } catch (error) {
+        } 
+        catch (error) {
             alert('로그인 실패! 다시 시도 해주세요.');
         }
     };
@@ -63,8 +68,7 @@ const LoginForm = () => {
                     text="로그인" 
                     className="login-button" 
                     type="submit"
-                    disabled={isButtonDisabled}
-                />
+                    disabled={isButtonDisabled}/>
             </form>
         </>
     );
