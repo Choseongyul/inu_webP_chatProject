@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
 import io from 'socket.io-client';
+import { openDB, addMessage, getMessages } from './db';
 
 const socket = io.connect();
 
-const UsersList = ({ users }) => {
-    return (
-        <div className='users'>
-            <h3> 참여자들 </h3>
-            <ul>
-                {users.map((user, i) => (
-                    <li key={i}>{user}</li>
-                ))}
-            </ul>
-        </div>
-    );
-};
+// const UsersList = ({ users }) => {
+//     return (
+//         <div className='users'>
+//             <h3> 참여자들 </h3>
+//             <ul>
+//                 {users.map((user, i) => (
+//                     <li key={i}>{user}</li>
+//                 ))}
+//             </ul>
+//         </div>
+//     );
+// };
 
 const Message = ({ user, text, time }) => {
     return (
@@ -64,7 +64,7 @@ const MessageForm = ({ onMessageSubmit, user }) => {
         <div className='message_form'>
             <form onSubmit={handleSubmit}>
                 <input
-                    placeholder='텍스트 입력'
+                    placeholder='메세지 입력'
                     className='textinput'
                     onChange={changeHandler}
                     value={text}
@@ -75,39 +75,52 @@ const MessageForm = ({ onMessageSubmit, user }) => {
     );
 };
 
-const ChangeNameForm = ({ onChangeName }) => {
-    const [newName, setNewName] = useState('');
+// const ChangeNameForm = ({ onChangeName }) => {
+//     const [newName, setNewName] = useState('');
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onChangeName(newName);
-        setNewName('');
-    };
+//     const handleSubmit = (e) => {
+//         e.preventDefault();
+//         onChangeName(newName);
+//         setNewName('');
+//     };
 
-    const onKey = (e) => {
-        setNewName(e.target.value);
-    };
+//     const onKey = (e) => {
+//         setNewName(e.target.value);
+//     };
 
-    return (
-        <div className='change_name_form'>
-            <h3> 아이디 변경 </h3>
-            <form onSubmit={handleSubmit}>
-                <input
-                    placeholder='변경할 아이디 입력'
-                    onChange={onKey}
-                    value={newName}
-                />
-            </form>
-        </div>
-    );
-};
+//     return (
+//         <div className='change_name_form'>
+//             <h3> 아이디 변경 </h3>
+//             <form onSubmit={handleSubmit}>
+//                 <input
+//                     placeholder='변경할 아이디 입력'
+//                     onChange={onKey}
+//                     value={newName}
+//                 />
+//             </form>
+//         </div>
+//     );
+// };
 
-const ChatRoom = () => {
+const ChatRoom = ({ roomName }) => {
     const [users, setUsers] = useState([]);
     const [messages, setMessages] = useState([]);
     const [user, setUser] = useState('');
 
     useEffect(() => {
+        const fetchMessages = async() => {
+            try {
+                const db = await openDB();
+                const messages = await getMessages(db, roomName);
+                setMessages(messages);
+            }
+            catch (error) {
+                console.error('Error fetch message : ', error);
+            }
+        };
+
+        fetchMessages();
+
         socket.on('init', _initialize);
         socket.on('send:message', _messageReceive);
         socket.on('user:join', _userJoined);
@@ -121,7 +134,7 @@ const ChatRoom = () => {
             socket.off('user:left', _userLeft);
             socket.off('change:name', _userChangedName);
         };
-    }, []);
+    }, [roomName]);
 
     const _initialize = (data) => {
         const { users, name } = data;
@@ -148,26 +161,33 @@ const ChatRoom = () => {
         setUsers((prevUsers) => prevUsers.map((user) => (user === oldName ? newName : user)));
     };
 
-    const handleMessageSubmit = (message) => {
+    const handleMessageSubmit = async (message) => {
         setMessages((prevMessages) => [...prevMessages, message]);
         socket.emit('send:message', message);
+
+        try {
+            const db = await openDB();
+            await addMessage(db, {...message, roomName });
+        } catch (error) {
+            console.error('Error saving message:', error);
+        }
     };
 
-    const handleChangeName = (newName) => {
-        const oldName = user;
-        socket.emit('change:name', { name: newName }, (result) => {
-            if (!result) {
-                return alert('There was an error changing your name');
-            }
-            setUsers((prevUsers) => prevUsers.map((user) => (user === oldName ? newName : user)));
-            setUser(newName);
-        });
-    };
+    // const handleChangeName = (newName) => {
+    //     const oldName = user;
+    //     socket.emit('change:name', { name: newName }, (result) => {
+    //         if (!result) {
+    //             return alert('There was an error changing your name');
+    //         }
+    //         setUsers((prevUsers) => prevUsers.map((user) => (user === oldName ? newName : user)));
+    //         setUser(newName);
+    //     });
+    // };
 
     return (
         <div className="chat-container">
             <div className="chat-header">
-                <h2>채팅방 1</h2>
+                <h2> {roomName} </h2>
                 <button className="close-button">✕</button>
             </div>
             <MessageList messages={messages} />

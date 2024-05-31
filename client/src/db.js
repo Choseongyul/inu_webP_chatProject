@@ -1,6 +1,7 @@
 const dbName = "chattering";
 const userStoreName = "users";
 const chatStoreName = "chatlist";
+const messageStoreName = "messages";
 
 export function openDB() {
     return new Promise((resolve, reject) => {
@@ -17,6 +18,11 @@ export function openDB() {
             if (!db.objectStoreNames.contains(chatStoreName)) {
                 const chatStore = db.createObjectStore(chatStoreName, { keyPath: "id", autoIncrement: true });
                 chatStore.createIndex("name", "name", { unique: true });
+            }
+
+            if (!db.objectStoreNames.contains(messageStoreName)) {
+                const messageStore = db.createObjectStore(messageStoreName, {keyPath: "id", autoIncrement: true});
+                messageStore.createIndex("roomName", "roomName", {unique: false});
             }
         };
 
@@ -94,6 +100,39 @@ export function getChatRoom(db, chatRoomName) {
 
         request.onerror = (event) => {
             reject("Error fetching chat room: " + event.target.errorCode);
+        };
+    });
+}
+
+export function addMessage(db, message) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([messageStoreName], "readwrite");
+        const store = transaction.objectStore(messageStoreName);
+        const request = store.add(message);
+
+        request.onsuccess = () => {
+            resolve("Message added");
+        };
+
+        request.onerror = (event) => {
+            reject("Error adding message: " + event.target.errorCode);
+        };
+    });
+}
+
+export function getMessages(db, roomName) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([messageStoreName], "readonly");
+        const store = transaction.objectStore(messageStoreName);
+        const index = store.index("roomName");
+        const request = index.getAll(roomName);
+
+        request.onsuccess = (event) => {
+            resolve(event.target.result);
+        };
+
+        request.onerror = (event) => {
+            reject("Error fetching messages: " + event.target.errorCode);
         };
     });
 }
