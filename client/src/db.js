@@ -21,8 +21,8 @@ export function openDB() {
             }
 
             if (!db.objectStoreNames.contains(messageStoreName)) {
-                const messageStore = db.createObjectStore(messageStoreName, {keyPath: "id", autoIncrement: true});
-                messageStore.createIndex("roomName", "roomName", {unique: false});
+                const messageStore = db.createObjectStore(messageStoreName, { keyPath: "id", autoIncrement: true });
+                messageStore.createIndex("roomName", "roomName", { unique: false });
             }
         };
 

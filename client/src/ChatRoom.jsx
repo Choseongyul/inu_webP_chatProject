@@ -4,19 +4,6 @@ import { openDB, addMessage, getMessages } from './db';
 
 const socket = io.connect();
 
-// const UsersList = ({ users }) => {
-//     return (
-//         <div className='users'>
-//             <h3> 참여자들 </h3>
-//             <ul>
-//                 {users.map((user, i) => (
-//                     <li key={i}>{user}</li>
-//                 ))}
-//             </ul>
-//         </div>
-//     );
-// };
-
 const Message = ({ user, text, time }) => {
     return (
         <div className="message">
@@ -75,35 +62,7 @@ const MessageForm = ({ onMessageSubmit, user }) => {
     );
 };
 
-// const ChangeNameForm = ({ onChangeName }) => {
-//     const [newName, setNewName] = useState('');
-
-//     const handleSubmit = (e) => {
-//         e.preventDefault();
-//         onChangeName(newName);
-//         setNewName('');
-//     };
-
-//     const onKey = (e) => {
-//         setNewName(e.target.value);
-//     };
-
-//     return (
-//         <div className='change_name_form'>
-//             <h3> 아이디 변경 </h3>
-//             <form onSubmit={handleSubmit}>
-//                 <input
-//                     placeholder='변경할 아이디 입력'
-//                     onChange={onKey}
-//                     value={newName}
-//                 />
-//             </form>
-//         </div>
-//     );
-// };
-
 const ChatRoom = ({ roomName }) => {
-    const [users, setUsers] = useState([]);
     const [messages, setMessages] = useState([]);
     const [user, setUser] = useState('');
 
@@ -111,15 +70,17 @@ const ChatRoom = ({ roomName }) => {
         const fetchMessages = async() => {
             try {
                 const db = await openDB();
+                console.log("DB opened");
                 const messages = await getMessages(db, roomName);
                 setMessages(messages);
-            }
-            catch (error) {
-                console.error('Error fetch message : ', error);
+            } catch (error) {
+                console.error('Error fetching messages: ', error);
             }
         };
 
         fetchMessages();
+
+        socket.emit('join:room', roomName);
 
         socket.on('init', _initialize);
         socket.on('send:message', _messageReceive);
@@ -128,17 +89,20 @@ const ChatRoom = ({ roomName }) => {
         socket.on('change:name', _userChangedName);
 
         return () => {
-            socket.off('init', _initialize);
-            socket.off('send:message', _messageReceive);
-            socket.off('user:join', _userJoined);
-            socket.off('user:left', _userLeft);
-            socket.off('change:name', _userChangedName);
-        };
+            socket.off('send:message');
+        }
+        // return () => {
+        //     socket.off('init', _initialize);
+        //     socket.off('send:message', _messageReceive);
+        //     socket.off('user:join', _userJoined);
+        //     socket.off('user:left', _userLeft);
+        //     socket.off('change:name', _userChangedName);
+        // };
     }, [roomName]);
 
     const _initialize = (data) => {
         const { users, name } = data;
-        setUsers(users);
+        setUser(users);
         setUser(name);
     };
 
@@ -148,41 +112,31 @@ const ChatRoom = ({ roomName }) => {
 
     const _userJoined = (data) => {
         const { name } = data;
-        setUsers((prevUsers) => [...prevUsers, name]);
+        setUser((prevUsers) => [...prevUsers, name]);
     };
 
     const _userLeft = (data) => {
         const { name } = data;
-        setUsers((prevUsers) => prevUsers.filter((user) => user !== name));
+        setUser((prevUsers) => prevUsers.filter((user) => user !== name));
     };
 
     const _userChangedName = (data) => {
         const { oldName, newName } = data;
-        setUsers((prevUsers) => prevUsers.map((user) => (user === oldName ? newName : user)));
+        setUser((prevUsers) => prevUsers.map((user) => (user === oldName ? newName : user)));
     };
 
     const handleMessageSubmit = async (message) => {
         setMessages((prevMessages) => [...prevMessages, message]);
-        socket.emit('send:message', message);
+        socket.emit('send:message', { ...message, roomName });
 
         try {
             const db = await openDB();
-            await addMessage(db, {...message, roomName });
-        } catch (error) {
+            await addMessage(db, { ...message, roomName });
+        } 
+        catch (error) {
             console.error('Error saving message:', error);
         }
     };
-
-    // const handleChangeName = (newName) => {
-    //     const oldName = user;
-    //     socket.emit('change:name', { name: newName }, (result) => {
-    //         if (!result) {
-    //             return alert('There was an error changing your name');
-    //         }
-    //         setUsers((prevUsers) => prevUsers.map((user) => (user === oldName ? newName : user)));
-    //         setUser(newName);
-    //     });
-    // };
 
     return (
         <div className="chat-container">
