@@ -23,6 +23,11 @@ module.exports = {
     ]
   },
   resolve: {
+    fallback: {
+      crypto: require.resolve('crypto-browserify'),
+      stream: require.resolve('stream-browserify'),
+      vm: require.resolve('vm-browserify')
+    },
     modules: [
       path.resolve(__dirname, './client/src'), 
       'node_modules' 

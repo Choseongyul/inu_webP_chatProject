@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-
 import InputField from './InputField';
 import Button from './Button';
 import InuLogo from './images/logo/INU.png';
 import inuChar from './images/logo/inuChar1.png';
 import { openDB, getUser } from './db';
 import { useNavigate } from 'react-router-dom';
+import bcrypt from 'bcryptjs';
+import io from 'socket.io-client';
 
 const LoginForm = () => {
-    
     const movePage = useNavigate();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -29,8 +29,12 @@ const LoginForm = () => {
             const db = await openDB();
             const user = await getUser(db, username);
 
-            if (user && user.password === password) {
+            if (user && bcrypt.compareSync(password, user.password)) {
                 localStorage.setItem('username', username);
+                
+                const socket = io.connect('http://localhost:3000', {
+                    query: { username }
+                });
                 movePage('/main');
             } 
             else {

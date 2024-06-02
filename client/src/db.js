@@ -1,3 +1,4 @@
+// Database configuration
 const dbName = "chattering";
 const userStoreName = "users";
 const chatStoreName = "chatlist";
@@ -10,16 +11,19 @@ export function openDB() {
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
 
+            // Create the user store if it doesn't exist
             if (!db.objectStoreNames.contains(userStoreName)) {
                 const userStore = db.createObjectStore(userStoreName, { keyPath: "id", autoIncrement: true });
                 userStore.createIndex("username", "username", { unique: true });
             }
 
+            // Create the chat store if it doesn't exist
             if (!db.objectStoreNames.contains(chatStoreName)) {
                 const chatStore = db.createObjectStore(chatStoreName, { keyPath: "id", autoIncrement: true });
                 chatStore.createIndex("name", "name", { unique: true });
             }
 
+            // Create the message store if it doesn't exist
             if (!db.objectStoreNames.contains(messageStoreName)) {
                 const messageStore = db.createObjectStore(messageStoreName, { keyPath: "id", autoIncrement: true });
                 messageStore.createIndex("roomName", "roomName", { unique: false });

@@ -13,14 +13,7 @@ var userNames = (function () {
 
   // find the lowest unused "guest" name and claim it
   var getGuestName = function () {
-    var name,
-      nextUserId = 1;
-
-    do {
-      name = 'Guest ' + nextUserId;
-      nextUserId += 1;
-    } while (!claim(name));
-
+    var name = localStorage.getItem('username');
     return name;
   };
 
@@ -50,7 +43,11 @@ var userNames = (function () {
 
 // export function for listening to the socket
 module.exports = function (socket) {
-  var name = userNames.getGuestName();
+  var name = socket.handshake.query.username;
+
+  if (name !== socket.handshake.query.username) {
+    userNames.claim(name);
+  }
 
   // send the new user their name and a list of users
   socket.emit('init', {
@@ -66,7 +63,7 @@ module.exports = function (socket) {
   // broadcast a user's message to other users
   socket.on('send:message', function (data) {
     socket.broadcast.emit('send:message', {
-      user: name,
+      user: data.user,
       text: data.text,
       time: data.time
     });

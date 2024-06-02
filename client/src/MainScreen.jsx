@@ -57,6 +57,10 @@ const MainScreen = () => {
         setSelectChatRoom(roomName);
     }
 
+    const handleCloseChatRoom = () => {
+        setSelectChatRoom(null);
+    };
+
     return (
         <>
             <img src={InuLogo} className='InuLogo' alt="INU Logo"/>
@@ -64,7 +68,7 @@ const MainScreen = () => {
             <MenuBar />
             <ChatList chatRooms={chatRooms} onSelectChatRoom={handleSelectChatRoom}/>
             
-            {selectChatRoom && <ChatRoom roomName={selectChatRoom} />}
+            {selectChatRoom && <ChatRoom roomName={selectChatRoom} onClose={ handleCloseChatRoom } />}
         </>
     );
 };

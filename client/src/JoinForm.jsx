@@ -5,6 +5,7 @@ import Button from './Button';
 import InuLogo from './images/logo/INU.png';
 import inuChar from './images/logo/inuChar1.png';
 import { openDB, addUser } from './db';
+import bcrypt from 'bcryptjs';
 
 const JoinForm = () => {
     const navigate = useNavigate();
@@ -27,8 +28,11 @@ const JoinForm = () => {
     const handleSignUp = async (e) => {
         e.preventDefault();
         try {
+            const salt = bcrypt.genSaltSync(10);
+            const hashedPassword = bcrypt.hashSync(password, salt);
+
             const db = await openDB();
-            await addUser(db, { username, password });
+            await addUser(db, { username, password: hashedPassword });
             alert('회원가입이 완료되었습니다!');
             navigate('/login'); // 회원가입 완료 후 로그인 페이지로 이동
         } catch (error) {
